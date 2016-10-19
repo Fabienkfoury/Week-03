@@ -9,6 +9,28 @@ public class Vehicle {
     private String make;
     private int year;
     private String message;
+    private int price;
+    private double engine;
+
+    public String getMessage() {
+        return message;
+    }
+    public int getPrice() {
+        return price;
+    }
+    public double Getengine()
+    {
+        return engine;
+    }
+
+    public String getMake() {
+        return make;
+    }
+
+    @Override
+    public String toString() {
+        return message;
+    }
 
     // the default constructor
     public Vehicle() {
@@ -18,11 +40,13 @@ public class Vehicle {
     }
 
     /*
-    * This constructor takes two parameters
-    * */
-    public Vehicle(String make, int year) {
+        * This constructor takes two parameters
+        * */
+    public Vehicle(String make, int year,int price, double engine) {
         this.make = make;
         this.year = year;
+        this.price=price;
+        this.engine=engine;
         this.message = "Your car is a " + make + " built in " + year + ".";
         count();
     }
@@ -38,17 +62,8 @@ public class Vehicle {
         count();
     }
 
-    public String getMessage() {
-        return message;
-    }
-
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    @Override
-    public String toString() {
-        return message;
     }
 
     private void count(){
