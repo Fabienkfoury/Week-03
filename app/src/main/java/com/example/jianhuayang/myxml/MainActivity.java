@@ -3,6 +3,7 @@ package com.example.jianhuayang.myxml;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,9 +34,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);             // R est une class genere automatiquement
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
+
+        editTextMake = (EditText) findViewById(R.id.inputMake);
+        editTextYear = (EditText) findViewById(R.id.inputYear);
+        editTextColor = (EditText) findViewById(R.id.inputColor);
+        editTextPrice = (EditText) findViewById(R.id.inputPrice);
+        editTextEngine = (EditText) findViewById(R.id.inputEngine);
+        textViewBlock = (TextView) findViewById(R.id.textBlock);
+        textViewBlock.setMovementMethod(new ScrollingMovementMethod());
+        depreciation = getResources().getInteger(R.integer.depreciation) / 100.00;
 
         button = (Button) findViewById(R.id.buttonRunPetrol);   // Autre méthode pour "onButonClick"
         button.setOnClickListener(new View.OnClickListener() {
@@ -46,13 +56,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onButtonClick(View view) {
-        editTextMake = (EditText) findViewById(R.id.inputMake);
-        editTextYear = (EditText) findViewById(R.id.inputYear);
-        editTextColor = (EditText) findViewById(R.id.inputColor);
         String make = editTextMake.getText().toString();
         String strYear = editTextYear.getText().toString();
         int intYear = Integer.parseInt(strYear);
         String color = editTextColor.getText().toString();
+        /* String strPrice=edtitTextYear.getText().toString();
+        int inPrice=Integer.parseInt(strPrice);
+         */
+        Integer price = new Integer(editTextPrice.getText().toString());
+        Double engine = new Double(editTextEngine.getText().toString());
 
         switch (view.getId()) {
             case R.id.buttonRunPetrol:
@@ -94,11 +106,53 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.menu_add:
+                addVehicle();
+                return true;
+            case R.id.menu_clear:
+                return clearVehicleList();
+            case R.id.action_settings:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
+    private void addVehicle() {
+        vehicleList.add(vehicle);
+        resetOutputs();
+    }
+
+    private boolean clearVehicleList() {
+        vehicleList.clear();
+        resetOutputs();
+        return true;
+    }
+
+    private void resetOutputs() {
+        if (vehicleList.size() == 0) {
+            outputs = new StringBuilder("Your vehicle list is currently empty.;");
+        } else {
+            outputs = new StringBuilder();
+            for (Vehicle v : vehicleList) {
+                outputs.append("This is vehicle No. " + (vehicleList.indexOf(v) + 1) + System.getProperty("line.separator"));
+                outputs.append("Manufacturer: " + v.getMake());
+                outputs.append("; Current value: " + depreciatePrice(v.getPrice()));
+                outputs.append("; Effective engine size: " + depreciateEngine(v.getEngine()));
+                outputs.append(System.getProperty("line.separator"));
+                outputs.append(System.getProperty("line.separator"));
+            }
+        }
+        textViewBlock.setText(outputs);
+    }
+
+    private int depreciatePrice(int price) {
+        return (int) (price * depreciation);
+    }
+
+    private double depreciateEngine(double engine) {
+        return (double) Math.round(engine * depreciation * 100) / 100 ;
+    }
+
 }
