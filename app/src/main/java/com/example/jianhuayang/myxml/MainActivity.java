@@ -14,13 +14,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MyCarActivity";
     private EditText editTextMake;
     private EditText editTextYear;
     private EditText editTextColor;
-    private Button button;
+    //private Button button;
     private EditText editTextPrice;
     private EditText editTextEngine;
     private TextView textViewBlock;
@@ -47,12 +49,24 @@ public class MainActivity extends AppCompatActivity {
         textViewBlock.setMovementMethod(new ScrollingMovementMethod());
         depreciation = getResources().getInteger(R.integer.depreciation) / 100.00;
 
-        button = (Button) findViewById(R.id.buttonRunPetrol);   // Autre méthode pour "onButonClick"
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-            }
-        });
+//        button = (Button) findViewById(R.id.buttonRunPetrol);   // Autre méthode pour "onButonClick"
+//        button.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                // Perform action on click
+//            }
+//        });
+
+        String[] manufacturers = getResources().getStringArray(R.array.manufacturer_array);   // On a aussi la méthode toString()
+        String[] descriptions = getResources().getStringArray(R.array.description_array);
+        for (int i = 0; i < manufacturers.length; i++ )
+        {
+            mapCarMaker.put(manufacturers[i], descriptions[i]);
+        }
+        /*What the code above does is to read car manufacturer names and their info. These are then put into a dictionary for later use. Note in here:
+
+        We use String array instead of ArrayList as the size of the array is fixed.
+        For an array, it has a field (i.e. a member variable) called length for its size. But for ArrayList, to get its size we need to call the size() method.
+        */
     }
 
     public void onButtonClick(View view) {
@@ -100,15 +114,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {       // Methode Overridée et qui fais fonctioner les boutons du menu
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.menu_add:
-                addVehicle();
+            case R.id.menu_add: // menu_add provient du menu_main.xml
+                addVehicle();   // fonction crée juste en dessous
                 return true;
             case R.id.menu_clear:
                 return clearVehicleList();
@@ -120,12 +134,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addVehicle() {
-        vehicleList.add(vehicle);
+        vehicleList.add(vehicle);       // Ajoute dans le tableau de vehicle crée au dessus
         resetOutputs();
     }
 
     private boolean clearVehicleList() {
-        vehicleList.clear();
+        vehicleList.clear();            // fonction qui vide le tableau de vehicle
         resetOutputs();
         return true;
     }
@@ -136,23 +150,44 @@ public class MainActivity extends AppCompatActivity {
         } else {
             outputs = new StringBuilder();
             for (Vehicle v : vehicleList) {
+                String vehicleDescription = mapCarMaker.get(v.getMake());
+                if (vehicleDescription == null){
+                    vehicleDescription = "No description available.";
+                }
                 outputs.append("This is vehicle No. " + (vehicleList.indexOf(v) + 1) + System.getProperty("line.separator"));
                 outputs.append("Manufacturer: " + v.getMake());
-                outputs.append("; Current value: " + depreciatePrice(v.getPrice()));
-                outputs.append("; Effective engine size: " + depreciateEngine(v.getEngine()));
+//                outputs.append("; Current value: " + depreciatePrice(v.getPrice()));
+//                outputs.append("; Effective engine size: " + depreciateEngine(v.getEngine()));
+                outputs.append("; Current value: " + depreciateAnything(v.getPrice()));
+                outputs.append("; Effective engine size: " + depreciateAnything(v.getEngine()));
                 outputs.append(System.getProperty("line.separator"));
                 outputs.append(System.getProperty("line.separator"));
             }
         }
-        textViewBlock.setText(outputs);
+        textViewBlock.setText(outputs); // Affichage du texte
     }
 
-    private int depreciatePrice(int price) {
-        return (int) (price * depreciation);
+//    private int depreciatePrice(int price) {
+//        return (int) (price * depreciation);
+//    }   // Dépréciation Price
+//
+//    private double depreciateEngine(double engine) { // Dépréciation engine
+//        return (double) Math.round(engine * depreciation * 100) / 100 ;
+//    }
+
+    private <T extends Number> Double depreciateAnything(T originalValue) {
+        Double result;
+        if (originalValue instanceof Double) {
+            result = Math.round(originalValue.doubleValue() * 0.8 * 100) / 100.00;
+        } else {
+            result = originalValue.intValue() * 0.8;
+        }
+        return result;
     }
 
-    private double depreciateEngine(double engine) {
-        return (double) Math.round(engine * depreciation * 100) / 100 ;
+    public void onClearClick(View v){           // Boutton du bas de la page
+        clearVehicleList();
     }
+    private Map<String, String> mapCarMaker = new HashMap<>(); //
 
 }
